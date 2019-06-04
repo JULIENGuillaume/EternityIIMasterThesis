@@ -13,6 +13,9 @@ namespace etm {
 	/**
 	 * Interface abstracting the logic of the board. It allows to retrieve information,
 	 * play the game, add state observers and evaluate the final result.
+	 *
+	 * @author Guillaume Julien
+	 * @date 04 June 2019
 	 */
 	class IBoard {
 	public:

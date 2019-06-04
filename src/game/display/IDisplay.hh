@@ -8,6 +8,13 @@
 #define ETERNITYII_IDISPLAY_HH
 
 namespace etm {
+	/**
+	 * Interface abstracting the display of the board. It allows to
+	 * push information to an output and trigger a refresh of it.
+	 *
+	 * @author Guillaume Julien
+	 * @date 04 June 2019
+	 */
 	class IDisplay {
 
 	};

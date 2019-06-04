@@ -12,6 +12,9 @@
 namespace etm {
 	/**
 	 * Interface abstracting the logic of a piece. It allow to get piece information.
+	 *
+	 * @author Guillaume Julien
+	 * @date 04 June 2019
 	 */
 	class IPiece {
 	public:
