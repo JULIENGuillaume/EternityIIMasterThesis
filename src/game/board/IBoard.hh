@@ -16,6 +16,8 @@ namespace etm {
 	 *
 	 * @author Guillaume Julien
 	 * @date 04 June 2019
+	 *
+	 * @interface IBoard IBoard.hh "IBoard.hh"
 	 */
 	class IBoard {
 	public:

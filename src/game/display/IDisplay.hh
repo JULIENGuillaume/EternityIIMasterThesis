@@ -14,6 +14,8 @@ namespace etm {
 	 *
 	 * @author Guillaume Julien
 	 * @date 04 June 2019
+	 *
+	 * @interface IDisplay IDisplay.hh "IDisplay.hh"
 	 */
 	class IDisplay {
 

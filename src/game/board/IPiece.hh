@@ -15,6 +15,8 @@ namespace etm {
 	 *
 	 * @author Guillaume Julien
 	 * @date 04 June 2019
+	 *
+	 * @interface IPiece IPiece.hh "IPiece.hh"
 	 */
 	class IPiece {
 	public:
