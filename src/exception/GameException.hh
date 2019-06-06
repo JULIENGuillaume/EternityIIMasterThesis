@@ -14,7 +14,6 @@ namespace etm {
 	/**
 	 * Base class for all exception related to the game
 	 *
-	 * @inherit std::exception
 	 * @author Guillaume Julien
 	 * @date 06 June 2019
 	 */
@@ -40,6 +39,9 @@ namespace etm {
 		const char *what() const noexcept override;
 
 	protected:
+		/**
+		 * The message to be displayed, set in the constructor.
+		 */
 		std::string const& m_message;
 	};
 }

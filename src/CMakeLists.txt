@@ -2,12 +2,22 @@ set(SOURCES_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(UTILITY_SRC_ROOT ${SOURCES_ROOT}/utility)
 set(BOARD_SRC_ROOT ${SOURCES_ROOT}/game/board)
 set(DISPLAY_SRC_ROOT ${SOURCES_ROOT}/game/display)
+set(EXCEPTION_SRC_ROOT ${SOURCES_ROOT}/exception)
+
+set(EXCEPTION_SRC
+        ${EXCEPTION_SRC_ROOT}/GameException.cpp
+        ${EXCEPTION_SRC_ROOT}/NonExistingPieceException.cpp
+        ${EXCEPTION_SRC_ROOT}/OutOfBoardException.cpp
+        ${EXCEPTION_SRC_ROOT}/PieceOverlapException.cpp)
 
 add_executable(${PROJECT_NAME}
-        ${SOURCES_ROOT}/main.cpp)
+        ${SOURCES_ROOT}/main.cpp
+        ${EXCEPTION_SRC})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         ${UTILITY_SRC_ROOT}
         ${BOARD_SRC_ROOT}
         ${DISPLAY_SRC_ROOT}
-        ${SOURCES_ROOT})
+        ${EXCEPTION_SRC_ROOT}
+
+        ${SOURCES_ROOT}) #TODO: let source root at the end for doxygen

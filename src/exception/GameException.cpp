@@ -6,6 +6,6 @@
 
 etm::GameException::GameException(std::string const& message) : m_message(message) {}
 
-const char *etm::GameException::what() const {
+const char *etm::GameException::what() const noexcept {
 	return m_message.c_str();
 }

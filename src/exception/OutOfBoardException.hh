@@ -13,7 +13,6 @@ namespace etm {
 	/**
 	 * Exception class related to all out of board errors.
 	 *
-	 * @inherit GameException
 	 * @author Guillaume Julien
 	 * @date 06 June 2019
 	 */
