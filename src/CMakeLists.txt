@@ -10,9 +10,13 @@ set(EXCEPTION_SRC
         ${EXCEPTION_SRC_ROOT}/OutOfBoardException.cpp
         ${EXCEPTION_SRC_ROOT}/PieceOverlapException.cpp)
 
+set(BOARD_SRC_ROOT
+        ${BOARD_SRC_ROOT}/SquarePiece.cpp)
+
 add_executable(${PROJECT_NAME}
         ${SOURCES_ROOT}/main.cpp
-        ${EXCEPTION_SRC})
+        ${EXCEPTION_SRC}
+        ${BOARD_SRC_ROOT})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         ${UTILITY_SRC_ROOT}
