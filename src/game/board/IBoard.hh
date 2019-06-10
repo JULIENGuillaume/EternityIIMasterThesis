@@ -87,18 +87,18 @@ namespace etm {
 		 * Get the information of a specific piece.
 		 *
 		 * @param pieceId	The id of the piece.
-		 * @return A shared pointer to an IPiece interface containing the information of the piece.
+		 * @return A const reference to an IPiece interface containing the information of the piece.
 		 *
 		 * @throw NonExistingPieceException	The piece id is invalid.
 		 */
-		virtual std::shared_ptr<IPiece> getPiece(uint32_t pieceId) const = 0;
+		virtual IPiece const& getPiece(uint32_t pieceId) const = 0;
 
 		/**
-		 * Get the full set of pieces, both played and remaining.
+		 * Get the full mapping of id to pieces, both played and remaining.
 		 *
-		 * @return An unordered set of shared pointers to IPiece interfaces.
+		 * @return An unordered map of const references to IPiece interfaces.
 		 */
-		virtual std::unordered_set<std::shared_ptr<IPiece>> const& getAllPieces() const = 0;
+		virtual std::unordered_map<uint32_t, IPiece const&> const& getAllPieces() const = 0;
 
 		/**
 		 * Place a piece on the board at the specified position.
