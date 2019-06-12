@@ -3,8 +3,12 @@
 //
 
 #include "SquarePiece.hh"
+#include "GameException.hh"
 
-etm::SquarePiece::SquarePiece(uint32_t id, std::array<uint32_t, 4> const &edges) : m_id(id), m_edges(edges.begin(), edges.end()) {}
+etm::SquarePiece::SquarePiece(uint32_t id, std::array<uint32_t, 4> const &edges) : m_id(id), m_edges(edges.begin(), edges.end()) {
+	if (m_id == 0)
+		throw GameException("Id of a piece must be different than 0");
+}
 
 uint32_t etm::SquarePiece::getId() const {
 	return this->m_id;
