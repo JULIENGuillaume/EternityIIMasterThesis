@@ -59,7 +59,7 @@ const std::unordered_map<uint32_t, const etm::IPiece &> &etm::FixedBoard4x4ForSq
 void etm::FixedBoard4x4ForSquarePieces::placePiece(uint32_t pieceId, const etm::Position2D &pos, bool forceRemove) {
 	if (pos.x >= 4 || pos.y >= 4)
 		throw OutOfBoardException();
-	placePiece(pieceId, pos.x + pos.y * 4, forceRemove);
+	placePiece(pieceId, getLinearPosition(pos), forceRemove);
 }
 
 void etm::FixedBoard4x4ForSquarePieces::placePiece(uint32_t pieceId, uint32_t pos, bool forceRemove) {
@@ -82,7 +82,7 @@ void etm::FixedBoard4x4ForSquarePieces::placePiece(uint32_t pieceId, uint32_t po
 void etm::FixedBoard4x4ForSquarePieces::removePiece(const etm::Position2D &pos) {
 	if (pos.x >= 4 || pos.y >= 4)
 		throw OutOfBoardException();
-	removePiece(pos.x + pos.y * 4);
+	removePiece(getLinearPosition(pos));
 }
 
 void etm::FixedBoard4x4ForSquarePieces::removePiece(uint32_t pos) {
@@ -99,7 +99,7 @@ void etm::FixedBoard4x4ForSquarePieces::removePiece(uint32_t pos) {
 void etm::FixedBoard4x4ForSquarePieces::rotatePiece(const etm::Position2D &pos, uint32_t rotation) {
 	if (pos.x >= 4 || pos.y >= 4)
 		throw OutOfBoardException();
-	rotatePiece(pos.x + pos.y * 4, rotation);
+	rotatePiece(getLinearPosition(pos), rotation);
 }
 
 void etm::FixedBoard4x4ForSquarePieces::rotatePiece(uint32_t pos, uint32_t rotation) {
@@ -109,4 +109,29 @@ void etm::FixedBoard4x4ForSquarePieces::rotatePiece(uint32_t pos, uint32_t rotat
 		throw NonExistingPieceException("There is no piece in this position on the board.");
 	uint32_t pieceId = this->m_board[pos];
 	this->m_idToRotation[pieceId] = (this->m_idToRotation[pieceId] + rotation) % 4;
+}
+
+uint32_t etm::FixedBoard4x4ForSquarePieces::getLinearPosition(const etm::Position2D &pos) const {
+	return pos.x + pos.y * 4;
+}
+
+std::vector<uint32_t> etm::FixedBoard4x4ForSquarePieces::getRotatedEdges(const etm::Position2D &pos) const {
+	if (pos.x >= 4 || pos.y >= 4)
+		throw OutOfBoardException();
+	return getRotatedEdges(getLinearPosition(pos));
+}
+
+std::vector<uint32_t> etm::FixedBoard4x4ForSquarePieces::getRotatedEdges(uint32_t const &pos) const {
+	if (pos >= 16)
+		throw OutOfBoardException();
+	std::array<uint32_t, 4> array = {0, 0, 0, 0};
+	uint32_t piecedId = this->m_board[pos];
+	if (piecedId != 0) {
+		uint32_t rotation = this->m_idToRotation.at(piecedId);
+		auto const& edges = this->m_idToPieces.at(piecedId).getEdges();
+		for (uint32_t idx = 0; idx < 4; ++idx) {
+			array[(idx + rotation) % 4] = edges[idx];
+		}
+	}
+	return std::vector<uint32_t>(array.begin(), array.end());
 }

@@ -165,6 +165,30 @@ namespace etm {
 		 * @throw NonExistingPieceException	There is no piece to rotate at the position.
 		 */
 		virtual void rotatePiece(uint32_t pos, uint32_t rotation) = 0;
+
+		/**
+		 * Convert a Position2D class to the linear position used on the board.
+		 *
+		 * @param pos The standard format position.
+		 * @return An uint32_t representing the equivalent linear position.
+		 */
+		virtual uint32_t getLinearPosition(Position2D const& pos) const = 0;
+
+		/**
+		 * Return a vector containing the edges of the piece at pos, applying the current rotation on them
+		 *
+		 * @param pos The position from which we get the edges
+		 * @return A vector of size piece dimension containing ordered edges
+		 */
+		virtual std::vector<uint32_t> getRotatedEdges(Position2D const& pos) const = 0;
+
+		/**
+		 * Return a vector containing the edges of the piece at pos, applying the current rotation on them
+		 *
+		 * @param pos The position from which we get the edges
+		 * @return A vector of size piece dimension containing ordered edges
+		 */
+		virtual std::vector<uint32_t> getRotatedEdges(uint32_t const& pos) const = 0;
 	};
 }
 

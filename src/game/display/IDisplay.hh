@@ -18,7 +18,9 @@ namespace etm {
 	 * @interface IDisplay IDisplay.hh "IDisplay.hh"
 	 */
 	class IDisplay {
-
+	public:
+		virtual ~IDisplay() = default;
+		virtual void refresh() const = 0;
 	};
 }
 

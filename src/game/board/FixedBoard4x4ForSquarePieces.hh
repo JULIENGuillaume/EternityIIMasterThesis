@@ -30,6 +30,9 @@ namespace etm {
 		void removePiece(uint32_t pos) override;
 		void rotatePiece(Position2D const &pos, uint32_t rotation) override;
 		void rotatePiece(uint32_t pos, uint32_t rotation) override;
+		uint32_t getLinearPosition(Position2D const &pos) const override;
+		virtual std::vector<uint32_t> getRotatedEdges(Position2D const &pos) const override;
+		virtual std::vector<uint32_t> getRotatedEdges(uint32_t const &pos) const override;
 
 	protected:
 		Size2D m_size = {4, 4};
