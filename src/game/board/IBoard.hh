@@ -189,6 +189,14 @@ namespace etm {
 		 * @return A vector of size piece dimension containing ordered edges
 		 */
 		virtual std::vector<uint32_t> getRotatedEdges(uint32_t const& pos) const = 0;
+
+		/**
+		 * Validate the board by checking the number of pieces, their uniqueness, that no invalid id or edges are present
+		 * and basic solvability properties.
+		 *
+		 * @throw BoardValidationException	Detail what failed during validation
+		 */
+		virtual void validate() const = 0;
 	};
 }
 

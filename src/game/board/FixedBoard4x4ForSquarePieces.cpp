@@ -5,10 +5,13 @@
 #include <NonExistingPieceException.hh>
 #include <OutOfBoardException.hh>
 #include <PieceOverlapException.hh>
+#include <BoardValidationException.hh>
 #include "FixedBoard4x4ForSquarePieces.hh"
 
+const uint32_t etm::FixedBoard4x4ForSquarePieces::boardEdgesColor = 1;
+
 etm::FixedBoard4x4ForSquarePieces::FixedBoard4x4ForSquarePieces(const std::array<SquarePiece, 16> &pieceSet) : m_pieceSet(pieceSet.begin(), pieceSet.end()) {
-	for (auto const& piece : m_pieceSet) {
+	for (auto const &piece : m_pieceSet) {
 		m_idToPieces.insert({piece.getId(), piece});
 		m_idToRotation.reserve(16);
 		m_idToPosition.reserve(16);
@@ -128,10 +131,34 @@ std::vector<uint32_t> etm::FixedBoard4x4ForSquarePieces::getRotatedEdges(uint32_
 	uint32_t piecedId = this->m_board[pos];
 	if (piecedId != 0) {
 		uint32_t rotation = this->m_idToRotation.at(piecedId);
-		auto const& edges = this->m_idToPieces.at(piecedId).getEdges();
+		auto const &edges = this->m_idToPieces.at(piecedId).getEdges();
 		for (uint32_t idx = 0; idx < 4; ++idx) {
 			array[(idx + rotation) % 4] = edges[idx];
 		}
 	}
 	return std::vector<uint32_t>(array.begin(), array.end());
+}
+
+void etm::FixedBoard4x4ForSquarePieces::validate() const {
+	if (this->m_pieceSet.size() != 16)
+		throw BoardValidationException("The number of pieces doesn't match the size of the board.");
+	if (this->m_pieceSet.size() != this->m_idToPieces.size())
+		throw BoardValidationException("There are duplicate pieces with common ids.");
+	std::unordered_map<uint32_t, uint32_t> edgeColorOccurrences;
+	for (auto const &piece : this->m_pieceSet) {
+		if (piece.getId() == 0)
+			throw BoardValidationException("Error: you can't have any piece using the reserved id 0");
+		auto const &edges = piece.getEdges();
+		for (auto const &edge : edges) {
+			if (edge == 0)
+				throw BoardValidationException("Error: you can't have any edges using the reserved id 0");
+			++edgeColorOccurrences[edge];
+		}
+	}
+	if (edgeColorOccurrences[FixedBoard4x4ForSquarePieces::boardEdgesColor] < 16)
+		throw BoardValidationException("There isn't enough edges to match the border color " + std::to_string(edgeColorOccurrences[FixedBoard4x4ForSquarePieces::boardEdgesColor])  +" of " + std::to_string(FixedBoard4x4ForSquarePieces::boardEdgesColor));
+	for (auto const& edge : edgeColorOccurrences) {
+		if (edge.second % 2 != 0)
+			throw BoardValidationException("The edges need to be even matched");
+	}
 }

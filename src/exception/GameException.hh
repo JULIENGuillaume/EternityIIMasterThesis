@@ -17,14 +17,14 @@ namespace etm {
 	 * @author Guillaume Julien
 	 * @date 06 June 2019
 	 */
-	class GameException : virtual public std::exception {
+	class GameException : public std::runtime_error {
 	public:
 		/**
 		 * Constructor setting the message as an std::string.
 		 *
 		 * @param message Message to describe the exception.
 		 */
-		explicit GameException(std::string const& message);
+		explicit GameException(std::string const &message);
 
 		/**
 		 * Default destructor.
@@ -42,7 +42,7 @@ namespace etm {
 		/**
 		 * The message to be displayed, set in the constructor.
 		 */
-		std::string const& m_message;
+		std::string m_message;
 	};
 }
 

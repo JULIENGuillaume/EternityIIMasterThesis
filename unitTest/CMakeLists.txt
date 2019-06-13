@@ -8,7 +8,7 @@ set(EXCEPTION_SRC
         ${EXCEPTION_SRC_ROOT}/GameException.cpp
         ${EXCEPTION_SRC_ROOT}/NonExistingPieceException.cpp
         ${EXCEPTION_SRC_ROOT}/OutOfBoardException.cpp
-        ${EXCEPTION_SRC_ROOT}/PieceOverlapException.cpp)
+        ${EXCEPTION_SRC_ROOT}/PieceOverlapException.cpp ../src/exception/BoardValidationException.cpp ../src/exception/BoardValidationException.hh)
 
 set(BOARD_SRC
         ${BOARD_SRC_ROOT}/SquarePiece.cpp
