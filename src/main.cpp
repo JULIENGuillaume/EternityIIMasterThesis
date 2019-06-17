@@ -10,6 +10,7 @@
 #include <IDisplay.hh>
 #include <TextualDisplay.hh>
 #include <BoardValidationException.hh>
+#include <DefaultScoreCalculator.hh>
 
 int main(int ac, char **av) {
 	std::array<etm::SquarePiece, 16> array = {
@@ -59,5 +60,16 @@ int main(int ac, char **av) {
 	board->rotatePiece(0, 5);
 
 	textDisplay->refresh();
+
+	etm::DefaultScoreCalculator calculator(*board);
+
+	board->rotatePiece(0, 1);
+
+	textDisplay->refresh();
+
+	auto const& score = calculator.computeScore();
+
+	std::cout << "Current score is " << score.cumulativeScore << " out of " << score.maxScore << std::endl;
+
 	return EXIT_SUCCESS;
 }

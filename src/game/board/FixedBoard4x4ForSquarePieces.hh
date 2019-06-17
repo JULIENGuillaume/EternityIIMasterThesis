@@ -34,6 +34,7 @@ namespace etm {
 		std::vector<uint32_t> getRotatedEdges(Position2D const &pos) const override;
 		std::vector<uint32_t> getRotatedEdges(uint32_t const &pos) const override;
 		void validate() const override;
+		virtual uint32_t getDefaultEdgeColor() const override;
 
 	public:
 		static const uint32_t boardEdgesColor;

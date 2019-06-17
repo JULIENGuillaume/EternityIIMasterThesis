@@ -8,12 +8,14 @@ set(EXCEPTION_SRC
         ${EXCEPTION_SRC_ROOT}/GameException.cpp
         ${EXCEPTION_SRC_ROOT}/NonExistingPieceException.cpp
         ${EXCEPTION_SRC_ROOT}/OutOfBoardException.cpp
-        ${EXCEPTION_SRC_ROOT}/PieceOverlapException.cpp ../src/exception/BoardValidationException.cpp ../src/exception/BoardValidationException.hh)
+        ${EXCEPTION_SRC_ROOT}/PieceOverlapException.cpp
+        ${EXCEPTION_SRC_ROOT}/BoardValidationException.cpp)
 
 set(BOARD_SRC
         ${BOARD_SRC_ROOT}/SquarePiece.cpp
         ${BOARD_SRC_ROOT}/FixedBoard4x4ForSquarePieces.cpp
-        ${BOARD_SRC_ROOT}/FixedBoard4x4ForSquarePieces.hh)
+        ${BOARD_SRC_ROOT}/FixedBoard4x4ForSquarePieces.hh
+        ${BOARD_SRC_ROOT}/DefaultScoreCalculator.cpp)
 
 enable_testing()
 find_package(GTest MODULE REQUIRED)

@@ -197,6 +197,13 @@ namespace etm {
 		 * @throw BoardValidationException	Detail what failed during validation
 		 */
 		virtual void validate() const = 0;
+
+		/**
+		 * Get the default edge color of the board for the outline of the board.
+		 *
+		 * @return an uint32_t containing the default color
+		 */
+		virtual uint32_t getDefaultEdgeColor() const = 0;
 	};
 }
 

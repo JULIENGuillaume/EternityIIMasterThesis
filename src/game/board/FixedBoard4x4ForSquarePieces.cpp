@@ -162,3 +162,7 @@ void etm::FixedBoard4x4ForSquarePieces::validate() const {
 			throw BoardValidationException("The edges need to be even matched");
 	}
 }
+
+uint32_t etm::FixedBoard4x4ForSquarePieces::getDefaultEdgeColor() const {
+	return FixedBoard4x4ForSquarePieces::boardEdgesColor;
+}
