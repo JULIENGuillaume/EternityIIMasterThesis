@@ -24,17 +24,20 @@ namespace etm {
 		const std::unordered_map<uint32_t, uint32_t> &getPiecesRotation() const override;
 		const IPiece &getPiece(uint32_t pieceId) const override;
 		const std::unordered_map<uint32_t, const IPiece &> &getAllPieces() const override;
-		void placePiece(uint32_t pieceId, Position2D const &pos, bool forceRemove) override;
-		void placePiece(uint32_t pieceId, uint32_t pos, bool forceRemove) override;
+		uint32_t placePiece(uint32_t pieceId, Position2D const &pos, bool forceRemove) override;
+		uint32_t placePiece(uint32_t pieceId, uint32_t pos, bool forceRemove) override;
 		void removePiece(Position2D const &pos) override;
 		void removePiece(uint32_t pos) override;
-		void rotatePiece(Position2D const &pos, uint32_t rotation) override;
-		void rotatePiece(uint32_t pos, uint32_t rotation) override;
+		uint32_t rotatePiece(Position2D const &pos, uint32_t rotation) override;
+		uint32_t rotatePiece(uint32_t pos, uint32_t rotation) override;
 		uint32_t getLinearPosition(Position2D const &pos) const override;
 		std::vector<uint32_t> getRotatedEdges(Position2D const &pos) const override;
 		std::vector<uint32_t> getRotatedEdges(uint32_t const &pos) const override;
 		void validate() const override;
-		virtual uint32_t getDefaultEdgeColor() const override;
+		uint32_t getDefaultEdgeColor() const override;
+
+	protected:
+		uint32_t getMismatchScore(uint32_t pos);
 
 	public:
 		static const uint32_t boardEdgesColor;

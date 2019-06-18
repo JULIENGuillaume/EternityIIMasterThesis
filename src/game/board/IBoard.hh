@@ -110,8 +110,10 @@ namespace etm {
 		 * @throw OutOfBoardException		The position is invalid.
 		 * @throw NonExistingPieceException	The piece id is invalid.
 		 * @throw PieceOverlapException		forceRemove is set to false, and a piece is already at pos.
+		 *
+		 * @return An uint32_t containing a "mismatch" score, the higher, the less well placed the piece is.
 		 */
-		virtual void placePiece(uint32_t pieceId, Position2D const &pos, bool forceRemove) = 0;
+		virtual uint32_t placePiece(uint32_t pieceId, Position2D const &pos, bool forceRemove) = 0;
 
 		/**
  		 * Place a piece on the board at the specified position.
@@ -123,8 +125,10 @@ namespace etm {
 		 * @throw OutOfBoardException		The position is invalid.
 		 * @throw NonExistingPieceException	The piece id is invalid.
 		 * @throw PieceOverlapException		forceRemove is set to false, and a piece is already at pos.
+		 *
+		 * @return An uint32_t containing a "mismatch" score, the higher, the less well placed the piece is.
  		 */
-		virtual void placePiece(uint32_t pieceId, uint32_t pos, bool forceRemove) = 0;
+		virtual uint32_t placePiece(uint32_t pieceId, uint32_t pos, bool forceRemove) = 0;
 
 		/**
 		 * Remove a piece from a specified position. Succeed even if there is no piece at the position.
@@ -152,8 +156,10 @@ namespace etm {
 		 *
 		 * @throw OutOfBoardException		The position is invalid.
 		 * @throw NonExistingPieceException	There is no piece to rotate at the position.
+		 *
+		 * @return An uint32_t containing a "mismatch" score, the higher, the less well placed the piece is.
 		 */
-		virtual void rotatePiece(Position2D const &pos, uint32_t rotation) = 0;
+		virtual uint32_t rotatePiece(Position2D const &pos, uint32_t rotation) = 0;
 
 		/**
 		 * Rotate a piece by a specified amount of clockwise step.
@@ -163,8 +169,10 @@ namespace etm {
 		 *
 		 * @throw OutOfBoardException		The position is invalid.
 		 * @throw NonExistingPieceException	There is no piece to rotate at the position.
+		 *
+		 * @return An uint32_t containing a "mismatch" score, the higher, the less well placed the piece is.
 		 */
-		virtual void rotatePiece(uint32_t pos, uint32_t rotation) = 0;
+		virtual uint32_t rotatePiece(uint32_t pos, uint32_t rotation) = 0;
 
 		/**
 		 * Convert a Position2D class to the linear position used on the board.

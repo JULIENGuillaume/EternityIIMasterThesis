@@ -59,13 +59,13 @@ const std::unordered_map<uint32_t, const etm::IPiece &> &etm::FixedBoard4x4ForSq
 	return m_idToPieces;
 }
 
-void etm::FixedBoard4x4ForSquarePieces::placePiece(uint32_t pieceId, const etm::Position2D &pos, bool forceRemove) {
+uint32_t etm::FixedBoard4x4ForSquarePieces::placePiece(uint32_t pieceId, const etm::Position2D &pos, bool forceRemove) {
 	if (pos.x >= 4 || pos.y >= 4)
 		throw OutOfBoardException();
-	placePiece(pieceId, getLinearPosition(pos), forceRemove);
+	return placePiece(pieceId, getLinearPosition(pos), forceRemove);
 }
 
-void etm::FixedBoard4x4ForSquarePieces::placePiece(uint32_t pieceId, uint32_t pos, bool forceRemove) {
+uint32_t etm::FixedBoard4x4ForSquarePieces::placePiece(uint32_t pieceId, uint32_t pos, bool forceRemove) {
 	if (pos >= 16)
 		throw OutOfBoardException();
 	if (this->m_idToPieces.find(pieceId) == this->m_idToPieces.end())
@@ -80,6 +80,7 @@ void etm::FixedBoard4x4ForSquarePieces::placePiece(uint32_t pieceId, uint32_t po
 	this->m_remainingPieces.erase(pieceId);
 	this->m_idToPosition.insert({pieceId, pos});
 	this->m_idToRotation.insert({pieceId, 0});
+	return getMismatchScore(pos);
 }
 
 void etm::FixedBoard4x4ForSquarePieces::removePiece(const etm::Position2D &pos) {
@@ -99,19 +100,20 @@ void etm::FixedBoard4x4ForSquarePieces::removePiece(uint32_t pos) {
 	this->m_idToRotation.erase(pieceId);
 }
 
-void etm::FixedBoard4x4ForSquarePieces::rotatePiece(const etm::Position2D &pos, uint32_t rotation) {
+uint32_t etm::FixedBoard4x4ForSquarePieces::rotatePiece(const etm::Position2D &pos, uint32_t rotation) {
 	if (pos.x >= 4 || pos.y >= 4)
 		throw OutOfBoardException();
-	rotatePiece(getLinearPosition(pos), rotation);
+	return rotatePiece(getLinearPosition(pos), rotation);
 }
 
-void etm::FixedBoard4x4ForSquarePieces::rotatePiece(uint32_t pos, uint32_t rotation) {
+uint32_t etm::FixedBoard4x4ForSquarePieces::rotatePiece(uint32_t pos, uint32_t rotation) {
 	if (pos >= 16)
 		throw OutOfBoardException();
 	if (this->m_board[pos] == 0)
 		throw NonExistingPieceException("There is no piece in this position on the board.");
 	uint32_t pieceId = this->m_board[pos];
 	this->m_idToRotation[pieceId] = (this->m_idToRotation[pieceId] + rotation) % 4;
+	return getMismatchScore(pos);
 }
 
 uint32_t etm::FixedBoard4x4ForSquarePieces::getLinearPosition(const etm::Position2D &pos) const {
@@ -165,4 +167,29 @@ void etm::FixedBoard4x4ForSquarePieces::validate() const {
 
 uint32_t etm::FixedBoard4x4ForSquarePieces::getDefaultEdgeColor() const {
 	return FixedBoard4x4ForSquarePieces::boardEdgesColor;
+}
+
+uint32_t etm::FixedBoard4x4ForSquarePieces::getMismatchScore(uint32_t pos) {
+	auto edges = getRotatedEdges(pos);
+	uint32_t mismatchScore = 0;
+	Position2D currentPos{pos % 4, pos / 4};
+	for (uint8_t i = 0; i < 4; ++i) {
+		if ((i == 0 && currentPos.y == 0) || (i == 1 && currentPos.x == m_size.width - 1) ||
+		    (i == 2 && currentPos.y == m_size.height - 1) || (i == 3 && currentPos.x == 0)) {
+			if (edges[i] != FixedBoard4x4ForSquarePieces::boardEdgesColor)
+				++mismatchScore;
+			continue;
+		}
+		static const std::array<std::pair<short, short>, 4> iToMod = {
+				std::make_pair(0, -1),
+				std::make_pair(1, 0),
+				std::make_pair(0, 1),
+				std::make_pair(-1, 0),
+		};
+		Position2D nextPos{currentPos.x + iToMod[i].first, currentPos.y + iToMod[i].second};
+		uint32_t oppositeColor = getRotatedEdges(nextPos)[(i + 2) % 4];
+		if (oppositeColor != 0 && oppositeColor != edges[i])
+			++mismatchScore;
+	}
+	return mismatchScore;
 }

@@ -3,6 +3,7 @@ set(UTILITY_SRC_ROOT ${SOURCES_ROOT}/utility)
 set(BOARD_SRC_ROOT ${SOURCES_ROOT}/game/board)
 set(DISPLAY_SRC_ROOT ${SOURCES_ROOT}/game/display)
 set(EXCEPTION_SRC_ROOT ${SOURCES_ROOT}/exception)
+set(SOLVER_SRC_ROOT ${SOURCES_ROOT}/solvers)
 
 set(EXCEPTION_SRC
         ${EXCEPTION_SRC_ROOT}/GameException.cpp
@@ -18,11 +19,15 @@ set(BOARD_SRC
 set(DISPLAY_SRC
         ${DISPLAY_SRC_ROOT}/TextualDisplay.cpp)
 
+set(SOLVER_SRC
+        ${SOLVER_SRC_ROOT}/BacktrackingSolver.cpp)
+
 add_executable(${PROJECT_NAME}
         ${SOURCES_ROOT}/main.cpp
         ${EXCEPTION_SRC}
         ${BOARD_SRC}
-        ${DISPLAY_SRC})
+        ${DISPLAY_SRC}
+        ${SOLVER_SRC})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         ${UTILITY_SRC_ROOT}
