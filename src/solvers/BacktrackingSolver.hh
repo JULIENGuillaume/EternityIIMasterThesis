@@ -14,8 +14,8 @@ namespace etm {
 	public:
 		BacktrackingSolver() = default;
 		~BacktrackingSolver() override = default;
-		virtual std::unique_ptr<IBoard> solve(std::unique_ptr<IBoard> board) override;
-		virtual bool canSolvePartiallyFilledBoard() override;
+		std::unique_ptr<IBoard> solve(std::unique_ptr<IBoard> board) override;
+		bool canSolvePartiallyFilledBoard() override;
 	};
 }
 

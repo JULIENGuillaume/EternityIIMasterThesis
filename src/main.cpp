@@ -12,6 +12,8 @@
 #include <BoardValidationException.hh>
 #include <DefaultScoreCalculator.hh>
 #include <solvers/BacktrackingSolver.hh>
+#include <chrono>
+#include <solvers/GeneticAlgorithm.hh>
 
 int main(int ac, char **av) {
 	std::array<etm::SquarePiece, 16> array = {
@@ -76,15 +78,26 @@ int main(int ac, char **av) {
 	std::cout << "Mismatch score is " << board->placePiece(6, 4, false) << std::endl;
 	std::cout << "Mismatch score is " << board->rotatePiece(4, 3) << std::endl;
 
-	etm::BacktrackingSolver solver;
+	etm::GeneticAlgorithm solver(500, 0.9, 30, 100, 0.1);
 
 	board->removePiece(0);
 	board->removePiece(1);
 	board->removePiece(4);
 
-	board = solver.solve(std::move(board));
+	auto ts1 = std::chrono::high_resolution_clock::now();
+
+	try {
+		board = solver.solve(std::move(board));
+	} catch (std::exception &e) {
+		std::cout << "Solver exception: " << e.what() << std::endl;
+	}
+
+
+	auto ts2 = std::chrono::high_resolution_clock::now();
+	std::cout << "Execution time: " << std::chrono::duration_cast<std::chrono::milliseconds>(ts2 - ts1).count() << " ms" << std::endl;
 
 	textDisplay->refresh();
+	calculator.computeScore();
 
 	std::cout << "Current score is " << score.cumulativeScore << " out of " << score.maxScore << std::endl;
 

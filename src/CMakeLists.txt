@@ -9,7 +9,8 @@ set(EXCEPTION_SRC
         ${EXCEPTION_SRC_ROOT}/GameException.cpp
         ${EXCEPTION_SRC_ROOT}/NonExistingPieceException.cpp
         ${EXCEPTION_SRC_ROOT}/OutOfBoardException.cpp
-        ${EXCEPTION_SRC_ROOT}/PieceOverlapException.cpp exception/BoardValidationException.cpp exception/BoardValidationException.hh)
+        ${EXCEPTION_SRC_ROOT}/PieceOverlapException.cpp
+        ${EXCEPTION_SRC_ROOT}/BoardValidationException.cpp)
 
 set(BOARD_SRC
         ${BOARD_SRC_ROOT}/SquarePiece.cpp
@@ -20,7 +21,8 @@ set(DISPLAY_SRC
         ${DISPLAY_SRC_ROOT}/TextualDisplay.cpp)
 
 set(SOLVER_SRC
-        ${SOLVER_SRC_ROOT}/BacktrackingSolver.cpp)
+        ${SOLVER_SRC_ROOT}/BacktrackingSolver.cpp
+        ${SOLVER_SRC_ROOT}/GeneticAlgorithm.cpp)
 
 add_executable(${PROJECT_NAME}
         ${SOURCES_ROOT}/main.cpp

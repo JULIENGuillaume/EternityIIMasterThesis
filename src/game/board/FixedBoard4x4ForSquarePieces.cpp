@@ -6,6 +6,7 @@
 #include <OutOfBoardException.hh>
 #include <PieceOverlapException.hh>
 #include <BoardValidationException.hh>
+#include <iostream>
 #include "FixedBoard4x4ForSquarePieces.hh"
 
 const uint32_t etm::FixedBoard4x4ForSquarePieces::boardEdgesColor = 1;
@@ -132,7 +133,7 @@ std::vector<uint32_t> etm::FixedBoard4x4ForSquarePieces::getRotatedEdges(uint32_
 	std::array<uint32_t, 4> array = {0, 0, 0, 0};
 	uint32_t piecedId = this->m_board[pos];
 	if (piecedId != 0) {
-		uint32_t rotation = this->m_idToRotation.at(piecedId);
+		uint32_t rotation = this->m_idToRotation.find(piecedId) != this->m_idToRotation.end() ? this->m_idToRotation.at(piecedId) : 0; //fixme: invalid key sometime arise ?
 		auto const &edges = this->m_idToPieces.at(piecedId).getEdges();
 		for (uint32_t idx = 0; idx < 4; ++idx) {
 			array[(idx + rotation) % 4] = edges[idx];
