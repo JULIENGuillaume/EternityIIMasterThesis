@@ -134,6 +134,13 @@ std::vector<uint32_t> etm::FixedBoard4x4ForSquarePieces::getRotatedEdges(uint32_
 	uint32_t piecedId = this->m_board[pos];
 	if (piecedId != 0) {
 		uint32_t rotation = this->m_idToRotation.find(piecedId) != this->m_idToRotation.end() ? this->m_idToRotation.at(piecedId) : 0; //fixme: invalid key sometime arise ?
+		/*uint32_t rotation;
+		try {
+			rotation = this->m_idToRotation.at(piecedId);
+		} catch (std::out_of_range &) {
+			rotation = 0;
+		}*/
+
 		auto const &edges = this->m_idToPieces.at(piecedId).getEdges();
 		for (uint32_t idx = 0; idx < 4; ++idx) {
 			array[(idx + rotation) % 4] = edges[idx];

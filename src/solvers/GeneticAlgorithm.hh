@@ -19,7 +19,7 @@ namespace etm {
 		std::unique_ptr<IBoard> solve(std::unique_ptr<IBoard> board) override;
 		bool canSolvePartiallyFilledBoard() override;
 	protected:
-		static void applyCandidateToBoard(IBoard &board, std::vector<uint32_t> const& candidate);
+		static void applyCandidateToBoard(IBoard &board, const std::vector<std::pair<uint32_t, uint32_t>> &candidate);
 	protected:
 		void generateInitialPop(std::vector<uint32_t> const &availablePieceList);
 		void evaluateCurrentPop(etm::IBoard &board);
@@ -33,11 +33,11 @@ namespace etm {
 		const uint32_t m_individualSelected;
 		const double m_mutationRate;
 	protected:
-		std::vector<uint32_t> m_initialState;
-		std::vector<std::vector<uint32_t>> m_currentPopulation;
-		std::vector<std::vector<uint32_t>> m_futurePopulation;
-		std::map<double, uint32_t> m_scoreToIndividual;
-		std::map<double, uint32_t> m_scoreToSelectedIndividuals;
+		std::vector<std::pair<uint32_t, uint32_t>> m_initialState;
+		std::vector<std::vector<std::pair<uint32_t, uint32_t>>> m_currentPopulation;
+		std::vector<std::vector<std::pair<uint32_t, uint32_t>>> m_futurePopulation;
+		std::multimap<double, uint32_t, std::greater<>> m_scoreToIndividual;
+		std::multimap<double, uint32_t, std::greater<>> m_scoreToSelectedIndividuals;
 	};
 }
 
