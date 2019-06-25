@@ -7,11 +7,13 @@
 #include <iostream>
 #include "GeneticAlgorithm.hh"
 
-etm::GeneticAlgorithm::GeneticAlgorithm(uint32_t popSize, double targetFitness, uint32_t maxGeneration, uint32_t individualSelected, double mutationRate) : m_popSize(popSize),
-                                                                                                                                                            m_targetFitness(targetFitness),
-                                                                                                                                                            m_maxGeneration(maxGeneration),
-                                                                                                                                                            m_individualSelected(individualSelected),
-                                                                                                                                                            m_mutationRate(mutationRate) {
+etm::GeneticAlgorithm::GeneticAlgorithm(uint32_t popSize, double targetFitness, uint32_t maxGeneration, uint32_t individualSelected, double mutationRate, double newRandomIndividualByGen)
+		: m_popSize(popSize),
+		  m_targetFitness(targetFitness),
+		  m_maxGeneration(maxGeneration),
+		  m_individualSelected(individualSelected),
+		  m_mutationRate(mutationRate),
+		  m_newRandomIndividualByGen(newRandomIndividualByGen) {
 	srand(time(nullptr)); //TODO: use better random generator
 }
 
@@ -22,7 +24,8 @@ std::unique_ptr<etm::IBoard> etm::GeneticAlgorithm::solve(std::unique_ptr<IBoard
 	for (uint32_t pieceId : board->getCurrentBoardPieces()) {
 		this->m_initialState.emplace_back(pieceId, pieceId ? board->getPiecesRotation().at(pieceId) : 0);
 	}
-	this->generateInitialPop({board->getRemainingPieces().begin(), board->getRemainingPieces().end()});
+	this->m_availablePieces.assign(board->getRemainingPieces().begin(), board->getRemainingPieces().end());
+	this->generateInitialPop();
 	for (uint32_t genCounter = 0; genCounter < this->m_maxGeneration; ++genCounter) {
 		std::cout << "Generation " << genCounter << std::endl;
 		this->m_currentPopulation = this->m_futurePopulation;
@@ -59,11 +62,16 @@ void etm::GeneticAlgorithm::applyCandidateToBoard(etm::IBoard &board, const std:
 	}
 }
 
-void etm::GeneticAlgorithm::generateInitialPop(std::vector<uint32_t> const &availablePieceList) {
+void etm::GeneticAlgorithm::generateInitialPop() {
 	this->m_currentPopulation.reserve(this->m_popSize);
-	this->m_futurePopulation.resize(this->m_popSize, this->m_initialState);
-	for (uint32_t i = 0; i < this->m_popSize; ++i) {
-		std::vector<uint32_t> remainingPieces = availablePieceList;
+	generateFuturePopWithNRandomIndividual(this->m_popSize);
+}
+
+void etm::GeneticAlgorithm::generateFuturePopWithNRandomIndividual(uint32_t n) {
+	this->m_futurePopulation.clear();
+	this->m_futurePopulation.resize(n, this->m_initialState);
+	for (uint32_t i = 0; i < n && i < this->m_popSize; ++i) {
+		std::vector<uint32_t> remainingPieces = m_availablePieces;
 		for (uint32_t pos = 0; pos < this->m_initialState.size() && !remainingPieces.empty(); ++pos) {
 			if (this->m_futurePopulation[i][pos].first == 0) {
 				uint32_t valueToPick = rand() % remainingPieces.size(); //TODO: use better random generator
@@ -94,31 +102,92 @@ void etm::GeneticAlgorithm::selectBestIndividuals() {
 	}
 }
 
-//TODO: put a real crossover
+//TODO: use better random generator
+/*
+ * Using PMX crossover
+ *
+ * This crossover guaranty the validity of the generated child
+ * However, it may be slow because it involves a lot of copy and swap
+ * Moreover, it doesn't take into account the bi-dimensional nature of the board
+ */
 void etm::GeneticAlgorithm::generateFuturePopWithCrossover() {
-	auto currentCursor = this->m_scoreToSelectedIndividuals.begin();
-	this->m_futurePopulation.clear();
-	for (uint32_t i = 0; i < this->m_popSize; ++i) {
-		this->m_futurePopulation.emplace_back(this->m_currentPopulation[currentCursor->second]);
-		if (++currentCursor == this->m_scoreToSelectedIndividuals.end())
-			currentCursor = this->m_scoreToSelectedIndividuals.begin();
+	//Generate first the segment of random individual in the next population
+	uint32_t randomPopSize = (double)(this->m_popSize) * this->m_newRandomIndividualByGen;
+	this->generateFuturePopWithNRandomIndividual(randomPopSize);
+
+	while (this->m_futurePopulation.size() < this->m_popSize) {
+		//Select the parents
+		//TODO: use proportional selection to help the best individuals
+
+		uint32_t posParent1 = rand() % this->m_individualSelected;
+		uint32_t posParent2 = rand() % this->m_individualSelected;
+		std::vector<std::pair<uint32_t, uint32_t>> child1;
+		std::vector<std::pair<uint32_t, uint32_t>> child2;
+
+		auto it = this->m_scoreToSelectedIndividuals.begin();
+		for (uint32_t i = 0; i < this->m_scoreToSelectedIndividuals.size() && i <= std::max(posParent1, posParent2); ++i) {
+			if (i == posParent1 || i == posParent2) {
+				copy(this->m_currentPopulation[it->second].begin(), this->m_currentPopulation[it->second].end(), std::back_inserter(i == posParent1 ? child1 : child2));
+				if (posParent1 == posParent2)
+					copy(this->m_currentPopulation[it->second].begin(), this->m_currentPopulation[it->second].end(), std::back_inserter(child2));
+			}
+			++it;
+		}
+
+		//Swap two random segment
+		uint32_t segmentPosStart = rand() % child1.size();
+		uint32_t segmentPosEnd = segmentPosStart + (rand() % (child1.size() - segmentPosStart));
+
+
+		std::map<uint32_t, std::pair<uint32_t, uint32_t>> child1ToChild2;
+		std::map<uint32_t, std::pair<uint32_t, uint32_t>> child2ToChild1;
+
+		for (uint32_t i = segmentPosStart; i <= segmentPosEnd; ++i) {
+			std::swap(child1[i], child2[i]);
+			child1ToChild2[child1[i].first] = child2[i];
+			child2ToChild1[child2[i].first] = child1[i];
+		}
+
+
+		bool hasChanged = true;
+		while (hasChanged) {
+			hasChanged = false;
+			for (uint32_t i = 0; i < child1.size(); ++i) {
+				if (i < segmentPosStart || i > segmentPosEnd) {
+					if (child1ToChild2.find(child1[i].first) != child1ToChild2.end()) {
+						child1[i] = child1ToChild2.at(child1[i].first);
+						hasChanged = true;
+					}
+					if (child2ToChild1.find(child2[i].first) != child2ToChild1.end()) {
+						child2[i] = child2ToChild1.at(child2[i].first);
+						hasChanged = true;
+					}
+				}
+			}
+		}
+		this->m_futurePopulation.push_back(child1);
+		if (this->m_futurePopulation.size() < this->m_popSize)
+			this->m_futurePopulation.push_back(child2);
 	}
 }
 
 //TODO: use better random generator
+/*
+ * Basic mutation system, possibly triggering a swap mutation (exchanging two pieces) or a rotation mutation.
+ */
 void etm::GeneticAlgorithm::mutateFuturePop() {
 	for (std::vector<std::pair<uint32_t, uint32_t>> &population : this->m_futurePopulation) {
 		for (uint32_t pos = 0; pos < population.size(); ++pos) {
 			double randRate = rand() % 10000;
 			randRate /= 10000;
-			if (randRate <= this->m_mutationRate) {
+			if (randRate <= this->m_mutationRate / 2.0) {
 				uint32_t exchangePos = rand() % population.size();
 				std::swap(population[pos], population[exchangePos]);
 				//std::cout << "Mutation triggered: swapping " << pos << " with " << exchangePos << std::endl;
 			}
 			randRate = rand() % 10000;
 			randRate /= 10000;
-			if (randRate <= this->m_mutationRate) {
+			if (randRate <= this->m_mutationRate / 2.0) {
 				population[pos].second = (population[pos].second + (rand() % 4)) % 4;
 				//std::cout << "Mutation triggered: rotation " << std::endl;
 			}

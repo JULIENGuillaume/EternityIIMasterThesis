@@ -78,7 +78,7 @@ int main(int ac, char **av) {
 	std::cout << "Mismatch score is " << board->placePiece(6, 4, false) << std::endl;
 	std::cout << "Mismatch score is " << board->rotatePiece(4, 3) << std::endl;
 
-	etm::GeneticAlgorithm solver(5000, 1.0, 50, 100, 0.2);
+	etm::GeneticAlgorithm solver(5000, 1.0, 50, 100, 0.2, 0.2);
 
 	board->removePiece(0);
 	board->removePiece(1);

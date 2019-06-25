@@ -13,7 +13,7 @@
 namespace etm {
 	class GeneticAlgorithm : public ISolver {
 	public:
-		GeneticAlgorithm(uint32_t popSize, double targetFitness, uint32_t maxGeneration, uint32_t individualSelected, double mutationRate = 0.01);
+		GeneticAlgorithm(uint32_t popSize, double targetFitness, uint32_t maxGeneration, uint32_t individualSelected, double mutationRate = 0.01, double newRandomIndividualByGen = 0.1);
 		~GeneticAlgorithm() override = default;
 	public:
 		std::unique_ptr<IBoard> solve(std::unique_ptr<IBoard> board) override;
@@ -21,7 +21,8 @@ namespace etm {
 	protected:
 		static void applyCandidateToBoard(IBoard &board, const std::vector<std::pair<uint32_t, uint32_t>> &candidate);
 	protected:
-		void generateInitialPop(std::vector<uint32_t> const &availablePieceList);
+		void generateInitialPop();
+		void generateFuturePopWithNRandomIndividual(uint32_t n);
 		void evaluateCurrentPop(etm::IBoard &board);
 		void selectBestIndividuals();
 		void generateFuturePopWithCrossover();
@@ -32,7 +33,9 @@ namespace etm {
 		const uint32_t m_maxGeneration;
 		const uint32_t m_individualSelected;
 		const double m_mutationRate;
+		const double m_newRandomIndividualByGen;
 	protected:
+		std::vector<uint32_t> m_availablePieces;
 		std::vector<std::pair<uint32_t, uint32_t>> m_initialState;
 		std::vector<std::vector<std::pair<uint32_t, uint32_t>>> m_currentPopulation;
 		std::vector<std::vector<std::pair<uint32_t, uint32_t>>> m_futurePopulation;
