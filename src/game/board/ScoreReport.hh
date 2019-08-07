@@ -13,6 +13,7 @@ namespace etm {
 	struct ScoreReport {
 		uint32_t maxScore = 0;
 		uint32_t cumulativeScore = 0;
+		uint32_t cumulativeDissimilarityScore = 0;
 		uint32_t perfectlyPlacedPieces = 0;
 		uint32_t zeroMatchPieces = 0;
 		uint32_t matchedBorder = 0;

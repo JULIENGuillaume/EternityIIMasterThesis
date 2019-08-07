@@ -19,18 +19,18 @@ int main(int ac, char **av) {
 	std::array<etm::SquarePiece, 16> array = {
 			etm::SquarePiece(1, {1, 2, 2, 2}),
 			etm::SquarePiece(2, {1, 1, 2, 2}),
-			etm::SquarePiece(3, {1, 1, 2, 2}),
-			etm::SquarePiece(4, {1, 1, 2, 2}),
+			etm::SquarePiece(3, {2, 1, 1, 2}),
+			etm::SquarePiece(4, {2, 2, 1, 1}),
 
-			etm::SquarePiece(5, {1, 1, 2, 2}),
+			etm::SquarePiece(5, {1, 2, 2, 1}),
 			etm::SquarePiece(6, {1, 2, 2, 2}),
-			etm::SquarePiece(7, {1, 2, 2, 2}),
-			etm::SquarePiece(8, {1, 2, 2, 2}),
+			etm::SquarePiece(7, {2, 2, 2, 1}),
+			etm::SquarePiece(8, {2, 2, 2, 1}),
 
-			etm::SquarePiece(9, {1, 2, 2, 2}),
-			etm::SquarePiece(10, {1, 2, 2, 2}),
-			etm::SquarePiece(11, {1, 2, 2, 2}),
-			etm::SquarePiece(12, {1, 2, 2, 2}),
+			etm::SquarePiece(9, {2, 2, 1, 2}),
+			etm::SquarePiece(10, {2, 2, 1, 2}),
+			etm::SquarePiece(11, {2, 1, 2, 2}),
+			etm::SquarePiece(12, {2, 1, 2, 2}),
 
 			etm::SquarePiece(13, {2, 2, 2, 2}),
 			etm::SquarePiece(14, {2, 2, 2, 2}),
@@ -78,6 +78,7 @@ int main(int ac, char **av) {
 	std::cout << "Mismatch score is " << board->placePiece(6, 4, false) << std::endl;
 	std::cout << "Mismatch score is " << board->rotatePiece(4, 3) << std::endl;
 
+	//etm::BacktrackingSolver solver;
 	etm::GeneticAlgorithm solver(5000, 1.0, 50, 100, 0.2, 0.2);
 
 	board->removePiece(0);

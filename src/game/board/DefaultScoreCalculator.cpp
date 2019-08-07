@@ -2,6 +2,7 @@
 // Created by Guillaume on 17/06/2019.
 //
 
+#include <iostream>
 #include "DefaultScoreCalculator.hh"
 
 etm::DefaultScoreCalculator::DefaultScoreCalculator(const etm::IBoard &board) : m_board(board) {}
@@ -25,10 +26,12 @@ const etm::ScoreReport &etm::DefaultScoreCalculator::computeScore() {
 	}
 	for (uint32_t i = 0; i < expectedColor.size(); ++i) {
 		++m_report.maxScore;
-		if (actualColor[i] != 0 && expectedColor[i] == actualColor[i])
+		if (actualColor[i] != 0 && expectedColor[i] == actualColor[i]) {
 			++m_report.cumulativeScore;
+		}
 		//TODO: calculate other score type in the report
 	}
+	m_report.cumulativeDissimilarityScore = m_report.maxScore - m_report.cumulativeScore;
 	return m_report;
 }
 
@@ -52,7 +55,7 @@ std::array<uint32_t, 4> etm::DefaultScoreCalculator::getExpectedColors(const etm
 				std::make_pair(-1, 0),
 		};
 		Position2D nextPos{pos.x + iToMod[i].first, pos.y + iToMod[i].second};
-		colors[i] = m_board.getRotatedEdges(nextPos)[i];
+		colors[i] = m_board.getRotatedEdges(nextPos)[(i + 2) % 4];
 	}
 	return colors;
 }

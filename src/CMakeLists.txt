@@ -15,14 +15,14 @@ set(EXCEPTION_SRC
 set(BOARD_SRC
         ${BOARD_SRC_ROOT}/SquarePiece.cpp
         ${BOARD_SRC_ROOT}/FixedBoard4x4ForSquarePieces.cpp
-        ${BOARD_SRC_ROOT}/DefaultScoreCalculator.cpp)
+        ${BOARD_SRC_ROOT}/DefaultScoreCalculator.cpp game/board/SholomonScoreCalculator.cpp game/board/SholomonScoreCalculator.hh)
 
 set(DISPLAY_SRC
         ${DISPLAY_SRC_ROOT}/TextualDisplay.cpp)
 
 set(SOLVER_SRC
         ${SOLVER_SRC_ROOT}/BacktrackingSolver.cpp
-        ${SOLVER_SRC_ROOT}/GeneticAlgorithm.cpp)
+        ${SOLVER_SRC_ROOT}/GeneticAlgorithm.cpp solvers/SholomonGeneticSolver.cpp solvers/SholomonGeneticSolver.hh)
 
 add_executable(${PROJECT_NAME}
         ${SOURCES_ROOT}/main.cpp

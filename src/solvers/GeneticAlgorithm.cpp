@@ -76,7 +76,7 @@ void etm::GeneticAlgorithm::generateFuturePopWithNRandomIndividual(uint32_t n) {
 			if (this->m_futurePopulation[i][pos].first == 0) {
 				uint32_t valueToPick = rand() % remainingPieces.size(); //TODO: use better random generator
 				this->m_futurePopulation[i][pos].first = remainingPieces[valueToPick];
-				this->m_futurePopulation[i][pos].second = rand() % 4;
+				this->m_futurePopulation[i][pos].second = 0; //replace with rand
 				remainingPieces.erase(remainingPieces.begin() + valueToPick);
 			}
 		}
@@ -114,6 +114,10 @@ void etm::GeneticAlgorithm::generateFuturePopWithCrossover() {
 	//Generate first the segment of random individual in the next population
 	uint32_t randomPopSize = (double)(this->m_popSize) * this->m_newRandomIndividualByGen;
 	this->generateFuturePopWithNRandomIndividual(randomPopSize);
+
+	for (auto & m_scoreToSelectedIndividual : this->m_scoreToSelectedIndividuals) {
+		this->m_futurePopulation.push_back(this->m_currentPopulation[m_scoreToSelectedIndividual.second]);
+	}
 
 	while (this->m_futurePopulation.size() < this->m_popSize) {
 		//Select the parents
@@ -185,12 +189,12 @@ void etm::GeneticAlgorithm::mutateFuturePop() {
 				std::swap(population[pos], population[exchangePos]);
 				//std::cout << "Mutation triggered: swapping " << pos << " with " << exchangePos << std::endl;
 			}
-			randRate = rand() % 10000;
+			/*randRate = rand() % 10000;
 			randRate /= 10000;
 			if (randRate <= this->m_mutationRate / 2.0) {
 				population[pos].second = (population[pos].second + (rand() % 4)) % 4;
 				//std::cout << "Mutation triggered: rotation " << std::endl;
-			}
+			}*/
 		}
 	}
 }

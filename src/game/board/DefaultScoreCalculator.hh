@@ -16,10 +16,9 @@ namespace etm {
 	public:
 		explicit DefaultScoreCalculator(IBoard const& board);
 		~DefaultScoreCalculator() override = default;
+	public:
 		const ScoreReport &computeScore() override;
 		const ScoreReport &getComputedScore() const override;
-	public:
-
 	protected:
 		std::array<uint32_t, 4> getExpectedColors(Position2D const& pos);
 	protected:
