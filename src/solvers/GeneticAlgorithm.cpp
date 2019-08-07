@@ -35,6 +35,7 @@ std::unique_ptr<etm::IBoard> etm::GeneticAlgorithm::solve(std::unique_ptr<IBoard
 		//std::cout << "The evaluation size is " << this->m_scoreToIndividual.size() << std::endl;
 		std::cout << "The current best score is " << this->m_scoreToIndividual.begin()->first << std::endl;
 		if (this->m_scoreToIndividual.begin()->first >= this->m_targetFitness) {
+			applyCandidateToBoard(*board, this->m_currentPopulation[this->m_scoreToIndividual.begin()->second]);
 			return board;
 		}
 		this->selectBestIndividuals();
@@ -52,6 +53,9 @@ bool etm::GeneticAlgorithm::canSolvePartiallyFilledBoard() {
 }
 
 void etm::GeneticAlgorithm::applyCandidateToBoard(etm::IBoard &board, const std::vector<std::pair<uint32_t, uint32_t>> &candidate) {
+	for (uint32_t pos = 0; pos < candidate.size(); ++pos) {
+		board.removePiece(pos);
+	}
 	for (uint32_t pos = 0; pos < candidate.size(); ++pos) {
 		if (candidate[pos].first == 0) {
 			board.removePiece(pos);
