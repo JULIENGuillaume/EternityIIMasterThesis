@@ -5,6 +5,7 @@
 #include <ctime>
 #include <DefaultScoreCalculator.hh>
 #include <iostream>
+#include <TextualDisplay.hh>
 #include "GeneticAlgorithm.hh"
 
 etm::GeneticAlgorithm::GeneticAlgorithm(uint32_t popSize, double targetFitness, uint32_t maxGeneration, uint32_t individualSelected, double mutationRate, double newRandomIndividualByGen)
@@ -34,7 +35,6 @@ std::unique_ptr<etm::IBoard> etm::GeneticAlgorithm::solve(std::unique_ptr<IBoard
 		//std::cout << "The evaluation size is " << this->m_scoreToIndividual.size() << std::endl;
 		std::cout << "The current best score is " << this->m_scoreToIndividual.begin()->first << std::endl;
 		if (this->m_scoreToIndividual.begin()->first >= this->m_targetFitness) {
-			applyCandidateToBoard(*board, this->m_currentPopulation[this->m_scoreToIndividual.begin()->second]);
 			return board;
 		}
 		this->selectBestIndividuals();
@@ -53,9 +53,9 @@ bool etm::GeneticAlgorithm::canSolvePartiallyFilledBoard() {
 
 void etm::GeneticAlgorithm::applyCandidateToBoard(etm::IBoard &board, const std::vector<std::pair<uint32_t, uint32_t>> &candidate) {
 	for (uint32_t pos = 0; pos < candidate.size(); ++pos) {
-		if (candidate[pos].first == 0)
+		if (candidate[pos].first == 0) {
 			board.removePiece(pos);
-		else {
+		} else {
 			board.placePiece(candidate[pos].first, pos, true);
 			board.rotatePiece(pos, candidate[pos].second);
 		}
@@ -76,7 +76,7 @@ void etm::GeneticAlgorithm::generateFuturePopWithNRandomIndividual(uint32_t n) {
 			if (this->m_futurePopulation[i][pos].first == 0) {
 				uint32_t valueToPick = rand() % remainingPieces.size(); //TODO: use better random generator
 				this->m_futurePopulation[i][pos].first = remainingPieces[valueToPick];
-				this->m_futurePopulation[i][pos].second = 0; //replace with rand
+				this->m_futurePopulation[i][pos].second = rand() % 4; //replace with rand
 				remainingPieces.erase(remainingPieces.begin() + valueToPick);
 			}
 		}
@@ -89,7 +89,15 @@ void etm::GeneticAlgorithm::evaluateCurrentPop(etm::IBoard &board) {
 	for (uint32_t i = 0; i < this->m_currentPopulation.size(); ++i) {
 		applyCandidateToBoard(board, this->m_currentPopulation[i]);
 		auto report = calculator.computeScore();
-		this->m_scoreToIndividual.insert({(double)(report.cumulativeScore) / (double)(report.maxScore), i});
+		double score = (double)(report.cumulativeScore) / (double)(report.maxScore);
+		if (report.cumulativeScore == report.maxScore) {
+			//displayPop(this->m_currentPopulation[i]);
+			std::unique_ptr<etm::IDisplay> textDisplay = std::make_unique<etm::TextualDisplay>(board);
+			textDisplay->refresh();
+		}
+		this->m_scoreToIndividual.insert({score, i});
+		if (score >= this->m_targetFitness)
+			return;
 	}
 }
 
@@ -183,18 +191,18 @@ void etm::GeneticAlgorithm::mutateFuturePop() {
 	for (std::vector<std::pair<uint32_t, uint32_t>> &population : this->m_futurePopulation) {
 		for (uint32_t pos = 0; pos < population.size(); ++pos) {
 			double randRate = rand() % 10000;
-			randRate /= 10000;
+			randRate /= 10000.0;
 			if (randRate <= this->m_mutationRate / 2.0) {
 				uint32_t exchangePos = rand() % population.size();
 				std::swap(population[pos], population[exchangePos]);
 				//std::cout << "Mutation triggered: swapping " << pos << " with " << exchangePos << std::endl;
 			}
-			/*randRate = rand() % 10000;
-			randRate /= 10000;
+			randRate = rand() % 10000;
+			randRate /= 10000.0;
 			if (randRate <= this->m_mutationRate / 2.0) {
 				population[pos].second = (population[pos].second + (rand() % 4)) % 4;
 				//std::cout << "Mutation triggered: rotation " << std::endl;
-			}*/
+			}
 		}
 	}
 }
