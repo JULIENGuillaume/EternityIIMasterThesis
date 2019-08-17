@@ -17,6 +17,9 @@ namespace etm {
 		uint32_t getId() const override;
 		uint32_t getPieceDimension() const override;
 		const std::vector<uint32_t> &getEdges() const override;
+	public:
+		void colorPieceEdge(uint32_t edge, uint32_t color);
+		void setId(uint32_t id);
 	protected:
 		uint32_t m_id;
 		std::vector<uint32_t> m_edges;

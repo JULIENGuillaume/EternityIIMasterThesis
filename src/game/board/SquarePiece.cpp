@@ -21,3 +21,11 @@ uint32_t etm::SquarePiece::getPieceDimension() const {
 const std::vector<uint32_t> &etm::SquarePiece::getEdges() const {
 	return this->m_edges;
 }
+
+void etm::SquarePiece::colorPieceEdge(uint32_t edge, uint32_t color) {
+	this->m_edges[edge] = color;
+}
+
+void etm::SquarePiece::setId(uint32_t id) {
+	this->m_id = id;
+}

@@ -15,7 +15,7 @@ set(EXCEPTION_SRC
 set(BOARD_SRC
         ${BOARD_SRC_ROOT}/SquarePiece.cpp
         ${BOARD_SRC_ROOT}/FixedBoard4x4ForSquarePieces.cpp
-        ${BOARD_SRC_ROOT}/DefaultScoreCalculator.cpp game/board/SholomonScoreCalculator.cpp game/board/SholomonScoreCalculator.hh)
+        ${BOARD_SRC_ROOT}/DefaultScoreCalculator.cpp game/board/SholomonScoreCalculator.cpp game/board/SholomonScoreCalculator.hh game/board/BoardGenerator.cpp game/board/BoardGenerator.hh game/board/DynamicSizedBoard.cpp game/board/DynamicSizedBoard.hh)
 
 set(DISPLAY_SRC
         ${DISPLAY_SRC_ROOT}/TextualDisplay.cpp)
