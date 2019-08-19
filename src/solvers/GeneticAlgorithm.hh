@@ -34,6 +34,7 @@ namespace etm {
 		const uint32_t m_individualSelected;
 		const double m_mutationRate;
 		const double m_newRandomIndividualByGen;
+		bool m_handleRotation;
 	protected:
 		std::vector<uint32_t> m_availablePieces;
 		std::vector<std::pair<uint32_t, uint32_t>> m_initialState;
