@@ -25,7 +25,7 @@ namespace etm {
 		void generateFuturePopWithNRandomIndividual(uint32_t n);
 		virtual void evaluateCurrentPop(etm::IBoard &board);
 		void selectBestIndividuals();
-		virtual void generateFuturePopWithCrossover();
+		virtual void generateFuturePopWithCrossover(etm::IBoard const &board);
 		void mutateFuturePop();
 	protected:
 		const uint32_t m_popSize;

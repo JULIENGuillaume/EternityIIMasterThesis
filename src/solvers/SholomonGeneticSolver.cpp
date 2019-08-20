@@ -12,7 +12,7 @@ etm::SholomonGeneticSolver::SholomonGeneticSolver(uint32_t popSize, double targe
 	m_handleRotation = false;
 }
 
-void etm::SholomonGeneticSolver::generateFuturePopWithCrossover() {
+void etm::SholomonGeneticSolver::generateFuturePopWithCrossover(etm::IBoard const &board) {
 	//Generate first the segment of random individual in the next population
 	uint32_t randomPopSize = (double) (this->m_popSize) * this->m_newRandomIndividualByGen;
 	this->generateFuturePopWithNRandomIndividual(randomPopSize);
@@ -67,7 +67,7 @@ void etm::SholomonGeneticSolver::generateFuturePopWithCrossover() {
 				uint32_t currentPos = availableBoundaries.front();
 				availableBoundaries.pop();
 				tmpBoundaries.pop();
-				uint32_t piece = findBestBuddy(child, parent1, parent2, piecesAvailable, currentPos);
+				uint32_t piece = findBestBuddy(child, piecesAvailable, board, currentPos);
 				if (piece != 0) {
 					placementDone = true;
 					child[currentPos].first = piece;
@@ -86,7 +86,7 @@ void etm::SholomonGeneticSolver::generateFuturePopWithCrossover() {
 				uint32_t currentPos = availableBoundaries.front();
 				availableBoundaries.pop();
 				tmpBoundaries.pop();
-				uint32_t piece = findBestFitAvailable(child, parent1, parent2, piecesAvailable, currentPos);
+				uint32_t piece = findBestFitAvailable(child, piecesAvailable, board, currentPos);
 				if (piece != 0) {
 					placementDone = true;
 					child[currentPos].first = piece;
@@ -128,22 +128,132 @@ uint32_t etm::SholomonGeneticSolver::findPieceAgreement(const std::vector<std::p
                                                         const std::vector<std::pair<uint32_t, uint32_t>> &parent2,
                                                         std::vector<uint32_t> const &piecesAvailable,
                                                         uint32_t pos) {
-
+	auto neighbours = getNeighbours(child, pos);
+	uint32_t pieceAtParent1 = matchingNeighboursComparison(parent1, neighbours);
+	if (pieceAtParent1 == 0)
+		return 0;
+	for (uint32_t piece : piecesAvailable)
+		if (piece == pieceAtParent1)
+			return 0;
+	uint32_t pieceAtParent2 = matchingNeighboursComparison(parent2, neighbours);
+	if (pieceAtParent2 == pieceAtParent1)
+		return pieceAtParent1;
 	return 0;
 }
 
-uint32_t etm::SholomonGeneticSolver::findBestBuddy(const std::vector<std::pair<uint32_t, uint32_t>> &child,
-                                                   const std::vector<std::pair<uint32_t, uint32_t>> &parent1,
-                                                   const std::vector<std::pair<uint32_t, uint32_t>> &parent2,
-                                                   std::vector<uint32_t> const &piecesAvailable,
-                                                   uint32_t pos) {
-	return 0;
+uint32_t etm::SholomonGeneticSolver::findBestBuddy(const std::vector<std::pair<uint32_t, uint32_t>> &child, std::vector<uint32_t> const &piecesAvailable, etm::IBoard const &board, uint32_t pos) {
+	std::vector<uint32_t> matchingPieces = piecesAvailable;
+	Position2D pos2D{pos % this->m_boardSize.width, pos / this->m_boardSize.height};
+	static const std::array<std::pair<short, short>, 4> iToMod = {
+			std::make_pair(0, -1),
+			std::make_pair(1, 0),
+			std::make_pair(0, 1),
+			std::make_pair(-1, 0),
+	};
+
+	for (uint32_t i = 0; i < 4 && !matchingPieces.empty(); ++i) {
+		Position2D neighbourPos{pos2D.x + iToMod[i].first, pos2D.y + iToMod[i].second};
+		uint32_t colorToMatch = 0;
+		if (neighbourPos.x < 0 || neighbourPos.x >= m_boardSize.width || neighbourPos.y < 0 || neighbourPos.y >= m_boardSize.height) {
+			colorToMatch = board.getDefaultEdgeColor();
+		} else {
+			uint32_t linePos = neighbourPos.x + neighbourPos.y * m_boardSize.width;
+			uint32_t childPiece = child[linePos].first;
+			if (childPiece != 0) {
+				colorToMatch = board.getPiece(childPiece).getEdges()[(i + 2) % 4];
+			}
+		}
+		if (colorToMatch == 0)
+			continue;
+		std::vector<uint32_t> validPieces;
+		for (uint32_t piece : matchingPieces) {
+			if (board.getPiece(piece).getEdges()[i] == colorToMatch)
+				validPieces.push_back(piece);
+		}
+		matchingPieces = validPieces;
+	}
+	if (matchingPieces.empty())
+		return 0;
+	return matchingPieces[rand() % matchingPieces.size()];
 }
 
-uint32_t etm::SholomonGeneticSolver::findBestFitAvailable(const std::vector<std::pair<uint32_t, uint32_t>> &child,
-                                                          const std::vector<std::pair<uint32_t, uint32_t>> &parent1,
-                                                          const std::vector<std::pair<uint32_t, uint32_t>> &parent2,
-                                                          std::vector<uint32_t> const &piecesAvailable,
-                                                          uint32_t pos) {
+uint32_t etm::SholomonGeneticSolver::findBestFitAvailable(const std::vector<std::pair<uint32_t, uint32_t>> &child, std::vector<uint32_t> const &piecesAvailable, etm::IBoard const &board, uint32_t pos) {
+	Position2D pos2D{pos % this->m_boardSize.width, pos / this->m_boardSize.height};
+	static const std::array<std::pair<short, short>, 4> iToMod = {
+			std::make_pair(0, -1),
+			std::make_pair(1, 0),
+			std::make_pair(0, 1),
+			std::make_pair(-1, 0),
+	};
+
+	std::array<uint32_t, 4> colors{};
+	for (uint32_t i = 0; i < 4; ++i) {
+		Position2D neighbourPos{pos2D.x + iToMod[i].first, pos2D.y + iToMod[i].second};
+		uint32_t colorToMatch = 0;
+		if (neighbourPos.x < 0 || neighbourPos.x >= m_boardSize.width || neighbourPos.y < 0 || neighbourPos.y >= m_boardSize.height) {
+			colorToMatch = board.getDefaultEdgeColor();
+		} else {
+			uint32_t linePos = neighbourPos.x + neighbourPos.y * m_boardSize.width;
+			uint32_t childPiece = child[linePos].first;
+			if (childPiece != 0) {
+				colorToMatch = board.getPiece(childPiece).getEdges()[(i + 2) % 4];
+			}
+		}
+		colors[i] = colorToMatch;
+	}
+	uint32_t bestScore = 0;
+	std::vector<uint32_t> bestPieces;
+	for (uint32_t piece : piecesAvailable) {
+		uint32_t score = 0;
+		for (uint32_t i = 0; i < 4; ++i) {
+			if (colors[i] == 0)
+				++score;
+			if (colors[i] == board.getPiece(piece).getEdges()[i])
+				++score;
+		}
+		if (score > bestScore) {
+			bestPieces.clear();
+			bestPieces.push_back(piece);
+			bestScore = score;
+		} else if (score == bestScore) {
+			bestPieces.push_back(piece);
+		}
+	}
+	if (bestPieces.empty())
+		return 0;
+	return bestPieces[rand() % bestPieces.size()];
+}
+
+std::vector<uint32_t> etm::SholomonGeneticSolver::getNeighbours(const std::vector<std::pair<uint32_t, uint32_t>> &board, uint32_t pos) {
+	Position2D pos2D{pos % this->m_boardSize.width, pos / this->m_boardSize.height};
+	static const std::array<std::pair<short, short>, 4> iToMod = {
+			std::make_pair(0, -1),
+			std::make_pair(1, 0),
+			std::make_pair(0, 1),
+			std::make_pair(-1, 0),
+	};
+
+	std::vector<uint32_t> neighbours;
+	for (auto const& mod : iToMod) {
+		Position2D neighbourPos{pos2D.x + mod.first, pos2D.y + mod.second};
+		if (neighbourPos.x < 0 || neighbourPos.x >= m_boardSize.width || neighbourPos.y < 0 || neighbourPos.y >= m_boardSize.height)
+			neighbours.emplace_back(0);
+		uint32_t linePos = neighbourPos.x + neighbourPos.y * m_boardSize.width;
+		neighbours.emplace_back(board[linePos].first);
+	}
+	return neighbours;
+}
+
+uint32_t etm::SholomonGeneticSolver::matchingNeighboursComparison(const std::vector<std::pair<uint32_t, uint32_t>> &board, const std::vector<uint32_t> &neighbours) {
+	for (uint32_t pos = 0; pos < board.size(); ++pos) {
+		auto compNeighbours = getNeighbours(board, pos);
+		bool valid = true;
+		for (uint32_t i = 0; i < neighbours.size(); ++i) {
+			if (compNeighbours[i] != neighbours[i])
+				valid = false;
+		}
+		if (valid)
+			return board[pos].first;
+	}
 	return 0;
 }

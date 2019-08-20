@@ -58,7 +58,7 @@ std::unique_ptr<etm::IBoard> etm::GeneticAlgorithm::solve(std::unique_ptr<IBoard
 			return board;
 		}
 		this->selectBestIndividuals();
-		this->generateFuturePopWithCrossover();
+		this->generateFuturePopWithCrossover(*board);
 		this->mutateFuturePop();
 	}
 	if (!this->m_currentPopulation.empty()) {
@@ -141,7 +141,7 @@ void etm::GeneticAlgorithm::selectBestIndividuals() {
  * However, it may be slow because it involves a lot of copy and swap
  * Moreover, it doesn't take into account the bi-dimensional nature of the board
  */
-void etm::GeneticAlgorithm::generateFuturePopWithCrossover() {
+void etm::GeneticAlgorithm::generateFuturePopWithCrossover(etm::IBoard const &) {
 	//Generate first the segment of random individual in the next population
 	uint32_t randomPopSize = (double)(this->m_popSize) * this->m_newRandomIndividualByGen;
 	this->generateFuturePopWithNRandomIndividual(randomPopSize);
