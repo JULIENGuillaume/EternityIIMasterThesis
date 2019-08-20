@@ -36,13 +36,6 @@ void etm::SholomonGeneticSolver::generateFuturePopWithCrossover() {
 			++it;
 		}
 
-		static const std::array<std::pair<short, short>, 4> iToMod = {
-				std::make_pair(0, -1),
-				std::make_pair(1, 0),
-				std::make_pair(0, 1),
-				std::make_pair(-1, 0),
-		};
-
 		std::vector<std::pair<uint32_t, uint32_t>> child;
 		child.resize(parent1.size(), {0, 0});
 		std::queue<uint32_t> availableBoundaries;
@@ -110,7 +103,24 @@ void etm::SholomonGeneticSolver::generateFuturePopWithCrossover() {
 }
 
 std::vector<uint32_t> etm::SholomonGeneticSolver::listAvailableBoundariesAtPos(uint32_t pos, const std::vector<std::pair<uint32_t, uint32_t>> &child) {
-	return std::vector<uint32_t>();
+	Position2D pos2D{pos % this->m_boardSize.width, pos / this->m_boardSize.height};
+	static const std::array<std::pair<short, short>, 4> iToMod = {
+			std::make_pair(0, -1),
+			std::make_pair(1, 0),
+			std::make_pair(0, 1),
+			std::make_pair(-1, 0),
+	};
+
+	std::vector<uint32_t> availableBoundaries;
+	for (auto const& mod : iToMod) {
+		Position2D neighbourPos{pos2D.x + mod.first, pos2D.y + mod.second};
+		if (neighbourPos.x < 0 || neighbourPos.x >= m_boardSize.width || neighbourPos.y < 0 || neighbourPos.y >= m_boardSize.height)
+			continue;
+		uint32_t linePos = neighbourPos.x + neighbourPos.y * m_boardSize.width;
+		if (child[linePos].first == 0)
+			availableBoundaries.emplace_back(linePos);
+	}
+	return availableBoundaries;
 }
 
 uint32_t etm::SholomonGeneticSolver::findPieceAgreement(const std::vector<std::pair<uint32_t, uint32_t>> &child,
