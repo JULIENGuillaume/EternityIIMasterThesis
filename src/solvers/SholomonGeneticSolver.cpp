@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <queue>
 #include <array>
+#include <iostream>
 #include "SholomonGeneticSolver.hh"
 
 etm::SholomonGeneticSolver::SholomonGeneticSolver(uint32_t popSize, double targetFitness, uint32_t maxGeneration, uint32_t individualSelected, Size2D const& boardSize, double mutationRate, double newRandomIndividualByGen)
@@ -12,12 +13,27 @@ etm::SholomonGeneticSolver::SholomonGeneticSolver(uint32_t popSize, double targe
 	m_handleRotation = false;
 }
 
+static void removePieceFromVec(std::vector<uint32_t> &vec, uint32_t piece) {
+	for (auto it = vec.begin(); it != vec.end(); ++it) {
+		if (*it == piece) {
+			vec.erase(it);
+			return;
+		}
+	}
+}
+
 void etm::SholomonGeneticSolver::generateFuturePopWithCrossover(etm::IBoard const &board) {
+	//std::cout << "Entering sholomon" << std::endl;
 	//Generate first the segment of random individual in the next population
 	uint32_t randomPopSize = (double) (this->m_popSize) * this->m_newRandomIndividualByGen;
 	this->generateFuturePopWithNRandomIndividual(randomPopSize);
 
+	for (auto & m_scoreToSelectedIndividual : this->m_scoreToSelectedIndividuals) {
+		this->m_futurePopulation.push_back(this->m_currentPopulation[m_scoreToSelectedIndividual.second]);
+	}
+
 	while (this->m_futurePopulation.size() < this->m_popSize) {
+		//std::cout << "Pop: " << this->m_futurePopulation.size() << "/" << this->m_popSize << std::endl;
 		//Select the parents
 		//TODO: use proportional selection to help the best individuals
 
@@ -36,69 +52,94 @@ void etm::SholomonGeneticSolver::generateFuturePopWithCrossover(etm::IBoard cons
 			++it;
 		}
 
+		//std::cout << "Parent selected" << std::endl;
+
 		std::vector<std::pair<uint32_t, uint32_t>> child;
 		child.resize(parent1.size(), {0, 0});
 		std::queue<uint32_t> availableBoundaries;
 		availableBoundaries.emplace(0);
 		std::vector<uint32_t> piecesAvailable = this->m_availablePieces;
 		while (!availableBoundaries.empty()) {
+			//std::cout << "Pieces available and boundaries: " << piecesAvailable.size() << " " << availableBoundaries.size() << std::endl;
+		//	if (piecesAvailable.empty())
+		//		exit(0);
 			bool placementDone = false;
 			std::queue<uint32_t> tmpBoundaries = availableBoundaries;
+			//std::cout << "Start of step 1..." << std::endl;
 			while (!tmpBoundaries.empty() && !placementDone) {
 				uint32_t currentPos = availableBoundaries.front();
 				availableBoundaries.pop();
 				tmpBoundaries.pop();
-				uint32_t piece = findPieceAgreement(child, parent1, parent2, piecesAvailable, currentPos);
-				if (piece != 0) {
-					placementDone = true;
-					child[currentPos].first = piece;
-					auto vec = listAvailableBoundariesAtPos(currentPos, child);
-					for (uint32_t val : vec) {
-						availableBoundaries.emplace(val);
+				if (child[currentPos].first == 0) {
+					uint32_t piece = findPieceAgreement(child, parent1, parent2, piecesAvailable, currentPos);
+					//std::cout << "Piece is " << piece << std::endl;
+					if (piece != 0) {
+						//std::cout << "A piece has been found !" << std::endl;
+						placementDone = true;
+						child[currentPos].first = piece;
+						removePieceFromVec(piecesAvailable, piece);
+						auto vec = listAvailableBoundariesAtPos(currentPos, child);
+						for (uint32_t val : vec) {
+							availableBoundaries.emplace(val);
+						}
+					} else {
+						availableBoundaries.emplace(currentPos);
 					}
-				} else {
-					availableBoundaries.emplace(currentPos);
 				}
 			}
+			//std::cout << "End of step 1" << std::endl;
 			if (placementDone)
 				continue;
 			tmpBoundaries = availableBoundaries;
+			//std::cout << "Start of step 2..." << std::endl;
 			while (!tmpBoundaries.empty() && !placementDone) {
 				uint32_t currentPos = availableBoundaries.front();
 				availableBoundaries.pop();
 				tmpBoundaries.pop();
-				uint32_t piece = findBestBuddy(child, piecesAvailable, board, currentPos);
-				if (piece != 0) {
-					placementDone = true;
-					child[currentPos].first = piece;
-					auto vec = listAvailableBoundariesAtPos(currentPos, child);
-					for (uint32_t val : vec) {
-						availableBoundaries.emplace(val);
+				if (child[currentPos].first == 0) {
+					uint32_t piece = findBestBuddy(child, piecesAvailable, board, currentPos);
+					if (piece != 0) {
+						//std::cout << "A piece has been found !" << std::endl;
+						placementDone = true;
+						child[currentPos].first = piece;
+						removePieceFromVec(piecesAvailable, piece);
+						auto vec = listAvailableBoundariesAtPos(currentPos, child);
+						for (uint32_t val : vec) {
+							availableBoundaries.emplace(val);
+						}
+					} else {
+						availableBoundaries.emplace(currentPos);
 					}
-				} else {
-					availableBoundaries.emplace(currentPos);
 				}
 			}
+			//std::cout << "End of step 2" << std::endl;
 			if (placementDone)
 				continue;
 			tmpBoundaries = availableBoundaries;
+			//std::cout << "Start of step 3..." << std::endl;
 			while (!tmpBoundaries.empty() && !placementDone) {
 				uint32_t currentPos = availableBoundaries.front();
 				availableBoundaries.pop();
 				tmpBoundaries.pop();
-				uint32_t piece = findBestFitAvailable(child, piecesAvailable, board, currentPos);
-				if (piece != 0) {
-					placementDone = true;
-					child[currentPos].first = piece;
-					auto vec = listAvailableBoundariesAtPos(currentPos, child);
-					for (uint32_t val : vec) {
-						availableBoundaries.emplace(val);
+				if (child[currentPos].first == 0) {
+					uint32_t piece = findBestFitAvailable(child, piecesAvailable, board, currentPos);
+					if (piece != 0) {
+						//std::cout << "A piece has been found !" << std::endl;
+						placementDone = true;
+						child[currentPos].first = piece;
+						removePieceFromVec(piecesAvailable, piece);
+						auto vec = listAvailableBoundariesAtPos(currentPos, child);
+						for (uint32_t val : vec) {
+							availableBoundaries.emplace(val);
+						}
+					} else {
+						availableBoundaries.emplace(currentPos);
 					}
-				} else {
-					availableBoundaries.emplace(currentPos);
 				}
 			}
+			//std::cout << "End of step 3" << std::endl;
 		}
+		this->m_futurePopulation.push_back(child);
 	}
 }
 
@@ -120,6 +161,7 @@ std::vector<uint32_t> etm::SholomonGeneticSolver::listAvailableBoundariesAtPos(u
 		if (child[linePos].first == 0)
 			availableBoundaries.emplace_back(linePos);
 	}
+	//std::cout << "Returning " << availableBoundaries.size() << " new boundaries" << std::endl;
 	return availableBoundaries;
 }
 
@@ -128,7 +170,9 @@ uint32_t etm::SholomonGeneticSolver::findPieceAgreement(const std::vector<std::p
                                                         const std::vector<std::pair<uint32_t, uint32_t>> &parent2,
                                                         std::vector<uint32_t> const &piecesAvailable,
                                                         uint32_t pos) {
+//	std::cout << "Entering find piece agreement" << std::endl;
 	auto neighbours = getNeighbours(child, pos);
+//	std::cout << "Got neighbours" << std::endl;
 	uint32_t pieceAtParent1 = matchingNeighboursComparison(parent1, neighbours);
 	if (pieceAtParent1 == 0)
 		return 0;
@@ -236,8 +280,10 @@ std::vector<uint32_t> etm::SholomonGeneticSolver::getNeighbours(const std::vecto
 	std::vector<uint32_t> neighbours;
 	for (auto const& mod : iToMod) {
 		Position2D neighbourPos{pos2D.x + mod.first, pos2D.y + mod.second};
-		if (neighbourPos.x < 0 || neighbourPos.x >= m_boardSize.width || neighbourPos.y < 0 || neighbourPos.y >= m_boardSize.height)
+		if (neighbourPos.x < 0 || neighbourPos.x >= m_boardSize.width || neighbourPos.y < 0 || neighbourPos.y >= m_boardSize.height) {
 			neighbours.emplace_back(0);
+			continue;
+		}
 		uint32_t linePos = neighbourPos.x + neighbourPos.y * m_boardSize.width;
 		neighbours.emplace_back(board[linePos].first);
 	}

@@ -16,6 +16,7 @@
 #include <solvers/GeneticAlgorithm.hh>
 #include <DynamicSizedBoard.hh>
 #include <BoardGenerator.hh>
+#include <solvers/SholomonGeneticSolver.hh>
 
 int main(int ac, char **av) {
 	try {
@@ -43,7 +44,7 @@ int main(int ac, char **av) {
 				etm::SquarePiece(16, {2, 2, 2, 2}),
 		};*/
 
-		std::unique_ptr<etm::IBoard> board = etm::BoardGenerator::generateBoard(16, 4);
+		std::unique_ptr<etm::IBoard> board = etm::BoardGenerator::generateBoard(16, 22);
 
 		try {
 			board->validate();
@@ -83,7 +84,8 @@ int main(int ac, char **av) {
 		etm::DefaultScoreCalculator calculator(*board);
 		auto const &score = calculator.computeScore();
 		//etm::BacktrackingSolver solver;
-		etm::GeneticAlgorithm solver(10000, 1.0, 1000, 10, 0.01, 0.05);
+//		etm::GeneticAlgorithm solver(5000, 1.0, 1000, 100, 0.01, 0.05);
+		etm::SholomonGeneticSolver solver(100, 0.9, 1000, 4, board->getSize(), 0.01, 0.05);
 
 		/*board->removePiece(0);
 		board->removePiece(1);
